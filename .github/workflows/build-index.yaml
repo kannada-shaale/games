@@ -1,0 +1,91 @@
+name: Build Kannada Games Index
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'games/*.html'
+      - '.github/workflows/build-index.yml'
+  pull_request:
+    paths:
+      - 'games/*.html'
+
+permissions:
+  contents: write
+
+jobs:
+  build-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Parse HTML metadata & validate
+        run: |
+          python3 - << 'EOF'
+          import os, glob, json, sys
+          from bs4 import BeautifulSoup
+
+          ALLOWED_CATEGORIES = {
+              "Aksharamale (Alphabet & Script)",
+              "Vocabulary & Themes",
+              "Reading & Word Building",
+              "Listening & Speaking",
+              "Grammar & Sentences",
+              "Culture, Rhymes & Stories"
+          }
+
+          games = []
+          errors = []
+
+          for filepath in sorted(glob.glob("games/*.html")):
+              with open(filepath, "r", encoding="utf-8") as f:
+                  soup = BeautifulSoup(f.read(), "html.parser")
+
+              def get_meta(name):
+                  tag = soup.find("meta", attrs={"name": name})
+                  return tag["content"].strip() if tag and tag.get("content") else ""
+
+              title = soup.title.string.strip() if soup.title and soup.title.string else os.path.basename(filepath)
+              category = get_meta("game:category")
+              level = get_meta("game:level") or "Beginner"
+              age = [a.strip() for a in get_meta("game:age").split(",") if a.strip()]
+              tags = [t.strip() for t in get_meta("game:tags").split(",") if t.strip()]
+              description = get_meta("game:description")
+              author = get_meta("game:author") or "Community"
+
+              if category not in ALLOWED_CATEGORIES:
+                  errors.append(f"{filepath}: Invalid or missing 'game:category' ('{category}'). Allowed: {sorted(ALLOWED_CATEGORIES)}")
+
+              games.append({
+                  "title": title,
+                  "path": filepath.replace("\\", "/"),
+                  "category": category,
+                  "level": level,
+                  "age": age,
+                  "tags": tags,
+                  "description": description,
+                  "author": author
+              })
+
+          if errors:
+              print("\n".join(errors), file=sys.stderr)
+              sys.exit(1)
+
+          with open("games-index.json", "w", encoding="utf-8") as out:
+              json.dump(games, out, ensure_ascii=False, indent=2)
+          print(f"Indexed {len(games)} games successfully.")
+          EOF
+
+      - name: Install BeautifulSoup
+        if: failure()
+        run: pip install beautifulsoup4
+
+      - name: Commit updated games-index.json
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add games-index.json
+          git diff --staged --quiet || git commit -m "chore: update games-index.json"
+          git push
