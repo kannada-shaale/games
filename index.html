@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ಕನ್ನಡ ಆಟಗಳು — Kannada Learning Games Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fffdf7;
+      --surface: #ffffff;
+      --primary: #d97706;
+      --primary-light: #fef3c7;
+      --accent: #b91c1c;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Kannada', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: linear-gradient(135deg, #f59e0b, #dc2626);
+      color: white;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+    header h1 { font-size: 2.2rem; margin-bottom: 0.4rem; }
+    header p { opacity: 0.95; max-width: 620px; margin: 0 auto 1.2rem; }
+    .contribute-btn {
+      display: inline-block;
+      background: white;
+      color: var(--accent);
+      font-weight: 700;
+      padding: 0.55rem 1.2rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .controls {
+      max-width: 1100px;
+      margin: -1.4rem auto 2rem;
+      background: var(--surface);
+      padding: 1rem 1.25rem;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .controls input, .controls select {
+      padding: 0.6rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+    .controls input { flex: 1 1 240px; }
+    main { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+    .category-section { margin-bottom: 2.75rem; }
+    .category-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.2rem;
+    }
+    .category-header h2 { font-size: 1.4rem; color: var(--accent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+    }
+    .card h3 { font-size: 1.15rem; margin-bottom: 0.4rem; }
+    .card p { color: var(--muted); font-size: 0.92rem; margin-bottom: 1rem; }
+    .badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+    .badge {
+      background: var(--primary-light);
+      color: #92400e;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding-top: 0.8rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .play-btn {
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+    }
+    .play-btn:hover { background: #b45309; }
+    .empty-state { text-align: center; padding: 3rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>ಕನ್ನಡ ಆಟಗಳು · Kannada Learning Games</h1>
+  <p>Free, community-built interactive games to learn Kannada script, vocabulary, listening, and grammar.</p>
+  <a class="contribute-btn" href="https://github.com/YOUR_USERNAME/YOUR_REPO/blob/main/CONTRIBUTING.md" target="_blank">+ Contribute a Game</a>
+</header>
+
+<div class="controls">
+  <input type="search" id="searchInput" placeholder="Search games, topics, or tags..." />
+  <select id="levelFilter">
+    <option value="">All Levels</option>
+    <option value="Beginner">Beginner</option>
+    <option value="Early Reader">Early Reader</option>
+    <option value="Intermediate">Intermediate</option>
+    <option value="Fluent">Fluent</option>
+  </select>
+  <select id="ageFilter">
+    <option value="">All Ages</option>
+    <option value="4-7">Ages 4–7</option>
+    <option value="8-12">Ages 8–12</option>
+    <option value="13+">Teens & Adults</option>
+  </select>
+</div>
+
+<main id="directory"></main>
+
+<script>
+  const CATEGORIES = [
+    { key: "Aksharamale (Alphabet & Script)", kn: "ಅಕ್ಷರಮಾಲೆ" },
+    { key: "Vocabulary & Themes", kn: "ಪದ ಸಂಪತ್ತು" },
+    { key: "Reading & Word Building", kn: "ಓದು ಮತ್ತು ಬರಹ" },
+    { key: "Listening & Speaking", kn: "ಕೇಳಿ ಮತ್ತು ಮಾತನಾಡಿ" },
+    { key: "Grammar & Sentences", kn: "ವ್ಯಾಕರಣ ಮತ್ತು ವಾಕ್ಯ" },
+    { key: "Culture, Rhymes & Stories", kn: "ಸಂಸ್ಕೃತಿ ಮತ್ತು ಕಥೆಗಳು" }
+  ];
+
+  let allGames = [];
+
+  async function init() {
+    try {
+      const res = await fetch('./games-index.json?v=' + Date.now());
+      allGames = await res.json();
+      render();
+    } catch (e) {
+      document.getElementById('directory').innerHTML =
+        `<div class="empty-state">No games indexed yet. Add an HTML game to <code>/games/</code> to get started!</div>`;
+    }
+  }
+
+  function render() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const level = document.getElementById('levelFilter').value;
+    const age = document.getElementById('ageFilter').value;
+    const container = document.getElementById('directory');
+
+    const filtered = allGames.filter(g => {
+      const matchesQuery = !query ||
+        g.title.toLowerCase().includes(query) ||
+        (g.description || '').toLowerCase().includes(query) ||
+        (g.tags || []).some(t => t.toLowerCase().includes(query));
+      const matchesLevel = !level || g.level === level;
+      const matchesAge = !age || (g.age || []).includes(age);
+      return matchesQuery && matchesLevel && matchesAge;
+    });
+
+    if (!filtered.length) {
+      container.innerHTML = `<div class="empty-state">No games match your filters.</div>`;
+      return;
+    }
+
+    container.innerHTML = CATEGORIES.map(cat => {
+      const items = filtered.filter(g => g.category === cat.key);
+      if (!items.length) return '';
+      return `
+        <section class="category-section">
+          <div class="category-header">
+            <h2>${cat.kn} · ${cat.key}</h2>
+            <span>(${items.length})</span>
+          </div>
+          <div class="grid">
+            ${items.map(g => `
+              <article class="card">
+                <div>
+                  <h3>${g.title}</h3>
+                  <p>${g.description || ''}</p>
+                  <div class="badges">
+                    <span class="badge">${g.level}</span>${(g.age || []).map(a => `<span class="badge">Age ${a}</span>`).join('')}
+                    ${(g.tags || []).map(t => `<span class="badge">${t}</span>`).join('')}
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <span>By ${g.author}</span>
+                  <a class="play-btn" href="./${g.path}">Play ▶</a>
+                </div>
+              </article>
+            `).join('')}
+          </div>
+        </section>
+      `;
+    }).join('');
+  }
+
+  ['searchInput', 'levelFilter', 'ageFilter'].forEach(id =>
+    document.getElementById(id).addEventListener('input', render)
+  );
+
+  init();
+</script>
+</body>
+</html>
