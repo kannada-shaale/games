@@ -1,0 +1,363 @@
+---
+
+### 4. `games/swara-fill-blanks.html` (Starter Game: Picture + Fill in the Blank with ಅ to ಅಃ)
+
+Save this as `games/swara-fill-blanks.html`. It covers **all 15 Swaragalu (ಅ through ಅಃ)** with kid-friendly pictures, word blanks (e.g., `___ ಮ್ಮ` for ಅಮ್ಮ, `___ ನೆ` for ಆನೆ), spoken Kannada audio (`kn-IN` Web Speech API), and sound effects.
+
+```html
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ಸ್ವರ ಆಟ · Fill the Missing Swara (ಅ - ಅಃ)</title>
+
+  <!-- Directory Metadata -->
+  <meta name="game:category" content="Aksharamale (Alphabet & Script)">
+  <meta name="game:level" content="Beginner">
+  <meta name="game:age" content="4-7, 8-12">
+  <meta name="game:tags" content="Swaragalu, Fill in the Blank, Audio">
+  <meta name="game:description" content="Look at the picture and pick the right Kannada vowel (ಅ to ಅಃ) to complete the word.">
+  <meta name="game:author" content="Kannada Games Starter">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@600;700;800&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Kannada', sans-serif;
+      background: linear-gradient(160deg, #fef3c7 0%, #fde68a 50%, #fed7aa 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      color: #1f2937;
+    }
+    .topbar {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .home-link {
+      text-decoration: none;
+      background: white;
+      color: #b45309;
+      font-weight: 700;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      font-size: 0.9rem;
+    }
+    .score-pill {
+      background: #b91c1c;
+      color: white;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      font-size: 0.95rem;
+    }
+    .card {
+      background: white;
+      width: 100%;
+      max-width: 640px;
+      border-radius: 24px;
+      padding: 1.75rem 1.5rem;
+      box-shadow: 0 14px 35px rgba(180, 83, 9, 0.15);
+      text-align: center;
+    }
+    .progress {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 0.75rem;
+    }
+    .picture-box {
+      background: #fffbeb;
+      border: 3px dashed #f59e0b;
+      border-radius: 20px;
+      padding: 1.25rem;
+      margin: 0 auto 1.25rem;
+      max-width: 260px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .picture-box:active { transform: scale(0.97); }
+    .emoji { font-size: 5rem; line-height: 1.1; display: block; }
+    .hint-en {
+      margin-top: 0.4rem;
+      font-size: 0.95rem;
+      color: #92400e;
+      font-weight: 700;
+    }
+    .speak-btn {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      color: #92400e;
+      font-weight: 700;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-bottom: 1.2rem;
+    }
+    .word-display {
+      font-family: 'Noto Sans Kannada', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 1.25rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .blank-slot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 68px;
+      height: 68px;
+      border-bottom: 5px solid #d97706;
+      background: #fffbeb;
+      border-radius: 12px;
+      color: #b91c1c;
+      padding: 0 0.5rem;
+    }
+    .blank-slot.filled {
+      background: #dcfce7;
+      border-bottom-color: #16a34a;
+      color: #15803d;
+    }
+    .prompt-text {
+      font-size: 0.95rem;
+      color: #4b5563;
+      margin-bottom: 0.9rem;
+    }
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      max-width: 420px;
+      margin: 0 auto 1.25rem;
+    }
+    .tile {
+      font-family: 'Noto Sans Kannada', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      background: #f9fafb;
+      border: 2px solid #d1d5db;
+      border-bottom-width: 5px;
+      border-radius: 16px;
+      padding: 0.75rem 0;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.15s;
+    }
+    .tile:hover:not(:disabled) {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      transform: translateY(-2px);
+    }
+    .tile.wrong {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #b91c1c;
+      animation: shake 0.3s;
+    }
+    .tile.correct {
+      background: #dcfce7;
+      border-color: #22c55e;
+      color: #15803d;
+    }
+    .feedback {
+      min-height: 1.8rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 0.8rem;
+    }
+    .next-btn {
+      display: none;
+      background: #16a34a;
+      color: white;
+      border: none;
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 0.75rem 1.8rem;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="home-link" href="../index.html">← All Games</a>
+    <div class="score-pill">⭐ Stars: <span id="score">0</span></div>
+  </div>
+
+  <div class="card" id="gameCard">
+    <div class="progress" id="progressText">Question 1 of 15</div>
+
+    <div class="picture-box" onclick="speakWord()" title="Tap to hear word">
+      <span class="emoji" id="emojiDisplay">👩</span>
+      <div class="hint-en" id="meaningDisplay">Mother (Amma)</div>
+    </div>
+
+    <button class="speak-btn" onclick="speakWord()">🔊 ಕೇಳಿ (Listen)</button>
+
+    <div class="word-display" id="wordDisplay"></div>
+
+    <div class="prompt-text">ಸರಿಯಾದ ಸ್ವರವನ್ನು ಆರಿಸಿ (Pick the right Swara):</div>
+    <div class="choices" id="choicesGrid"></div>
+
+    <div class="feedback" id="feedbackText"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">ಮುಂದೆ (Next) ▶</button>
+  </div>
+
+<script>
+  const ALL_SWARAS = ["ಅ", "ಆ", "ಇ", "ಈ", "ಉ", "ಊ", "ಋ", "ಎ", "ಏ", "ಐ", "ಒ", "ಓ", "ಔ", "ಅಂ", "ಅಃ"];
+
+  // Covers every Swara from ಅ to ಅಃ
+  const ITEMS = [
+    { swara: "ಅ", rest: "ಮ್ಮ", full: "ಅಮ್ಮ", emoji: "👩", meaning: "Mother (Amma)" },
+    { swara: "ಆ", rest: "ನೆ", full: "ಆನೆ", emoji: "🐘", meaning: "Elephant (Aane)" },
+    { swara: "ಇ", rest: "ಲಿ", full: "ಇಲಿ", emoji: "🐭", meaning: "Mouse (Ili)" },
+    { swara: "ಈ", rest: "ರುಳ್ಳಿ", full: "ಈರುಳ್ಳಿ", emoji: "🧅", meaning: "Onion (Eerulli)" },
+    { swara: "ಉ", rest: "ಂಗುರ", full: "ಉಂಗುರ", emoji: "💍", meaning: "Ring (Ungura)" },
+    { swara: "ಊ", rest: "ಟ", full: "ಊಟ", emoji: "🍛", meaning: "Meal (Oota)" },
+    { swara: "ಋ", rest: "ಷಿ", full: "ಋಷಿ", emoji: "🧘", meaning: "Sage (Rushi)" },
+    { swara: "ಎ", rest: "ಲೆ", full: "ಎಲೆ", emoji: "🍃", meaning: "Leaf (Ele)" },
+    { swara: "ಏ", rest: "ಣಿ", full: "ಏಣಿ", emoji: "🪜", meaning: "Ladder (Eni)" },
+    { swara: "ಐ", rest: "ದು", full: "ಐದು", emoji: "5️⃣", meaning: "Five (Aidu)" },
+    { swara: "ಒ", rest: "ಂಟೆ", full: "ಒಂಟೆ", emoji: "🐫", meaning: "Camel (Onte)" },
+    { swara: "ಓ", rest: "ದು", full: "ಓದು", emoji: "📖", meaning: "Read (Odu)" },
+    { swara: "ಔ", rest: "ಷಧ", full: "ಔಷಧ", emoji: "💊", meaning: "Medicine (Aushadha)" },
+    { swara: "ಅಂ", rest: "ಗಡಿ", full: "ಅಂಗಡಿ", emoji: "🏪", meaning: "Shop (Angadi)" },
+    { swara: "ಅಃ", rest: " (ವಿಸರ್ಗ)", full: "ಅಃ", emoji: "✨", meaning: "Visarga (Aha)" }
+  ];
+
+  let deck = [];
+  let currentIndex = 0;
+  let score = 0;
+  let answered = false;
+
+  function shuffle(arr) {
+    return [...arr].sort(() => Math.random() - 0.5);
+  }
+
+  function playTone(freq, duration = 0.18) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+      osc.stop(ctx.currentTime + duration);
+    } catch (_) {}
+  }
+
+  function speakWord() {
+    const item = deck[currentIndex];
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(item.full);
+    utter.lang = 'kn-IN';
+    utter.rate = 0.85;
+    window.speechSynthesis.speak(utter);
+  }
+
+  function startGame() {
+    deck = shuffle(ITEMS);
+    currentIndex = 0;
+    score = 0;
+    document.getElementById('score').textContent = score;
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    answered = false;
+    const item = deck[currentIndex];
+    document.getElementById('progressText').textContent = `Question ${currentIndex + 1} of ${deck.length}`;
+    document.getElementById('emojiDisplay').textContent = item.emoji;
+    document.getElementById('meaningDisplay').textContent = item.meaning;
+    document.getElementById('feedbackText').textContent = '';
+    document.getElementById('nextBtn').style.display = 'none';
+
+    document.getElementById('wordDisplay').innerHTML = `
+      <span class="blank-slot" id="blankSlot">?</span><span>${item.rest}</span>
+    `;
+
+    // Build 4 options: 1 correct + 3 random distractors
+    const distractors = shuffle(ALL_SWARAS.filter(s => s !== item.swara)).slice(0, 3);
+    const options = shuffle([item.swara, ...distractors]);
+
+    const grid = document.getElementById('choicesGrid');
+    grid.innerHTML = '';
+    options.forEach(letter => {
+      const btn = document.createElement('button');
+      btn.className = 'tile';
+      btn.textContent = letter;
+      btn.onclick = () => checkAnswer(btn, letter);
+      grid.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(btn, chosen) {
+    if (answered) return;
+    const item = deck[currentIndex];
+
+    if (chosen === item.swara) {
+      answered = true;
+      btn.classList.add('correct');
+      const slot = document.getElementById('blankSlot');
+      slot.textContent = item.swara;
+      slot.classList.add('filled');
+
+      score++;
+      document.getElementById('score').textContent = score;
+      document.getElementById('feedbackText').style.color = '#15803d';
+      document.getElementById('feedbackText').textContent = `ಶಹಬ್ಬಾಸ್! "${item.full}" ಸರಿ ಉತ್ತರ! 🎉`;
+      document.getElementById('nextBtn').style.display = 'inline-block';
+
+      playTone(587.33, 0.15);
+      setTimeout(() => playTone(880, 0.25), 120);
+      speakWord();
+    } else {
+      btn.classList.add('wrong');
+      btn.disabled = true;
+      document.getElementById('feedbackText').style.color = '#b91c1c';
+      document.getElementById('feedbackText').textContent = 'ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ (Try again!)';
+      playTone(200, 0.25);
+    }
+  }
+
+  function nextQuestion() {
+    currentIndex++;
+    if (currentIndex < deck.length) {
+      loadQuestion();
+    } else {
+      document.getElementById('gameCard').innerHTML = `
+        <div style="font-size:4rem;margin-bottom:0.5rem;">🏆</div>
+        <h2 style="font-size:1.8rem;color:#b91c1c;margin-bottom:0.5rem;">ಅಭಿನಂದನೆಗಳು! Great Job!</h2>
+        <p style="font-size:1.1rem;margin-bottom:1.5rem;">You completed all 15 Swaragalu (ಅ – ಅಃ) and earned <strong>${score} ⭐</strong>!</p>
+        <button class="next-btn" style="display:inline-block;" onclick="location.reload()">ಮತ್ತೆ ಆಡಿ (Play Again)</button>
+      `;
+    }
+  }
+
+  startGame();
+</script>
+</body>
+</html>
