@@ -8,10 +8,10 @@
   <!-- Directory Metadata -->
   <meta name="game:category" content="Listening & Speaking">
   <meta name="game:level" content="Beginner">
-  <meta name="game:age" content="4-7">
+  <meta name="game:age" content="4-7, 8-12">
   <meta name="game:tags" content="Actions, Listening, Speaking, Voice/Mic, No-Script">
   <meta name="game:description" content="Listen to spoken Kannada action commands like Baa, Nillu, and Odu, match the right action, and practice saying them aloud.">
-  <meta name="game:author" content="Kannada Games Starter">
+  <meta name="game:author" content="Anand">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -272,14 +272,14 @@
 
 <script>
   const ACTIONS = [
-    { kn: "ಬಾ", phonetic: "Baa", en: "Come here", emoji: "👋", alts: ["ಬಾ", "baa", "ba", "ಬಾರೋ"] },
-    { kn: "ಕುಳಿತುಕೋ", phonetic: "Kulithuko", en: "Sit down", emoji: "🪑", alts: ["ಕುಳಿತುಕೋ", "kulithuko", "kootko", "ಕೂತ್ಕೋ"] },
-    { kn: "ನಿಲ್ಲು", phonetic: "Nillu", en: "Stand up / Stop", emoji: "🛑", alts: ["ನಿಲ್ಲು", "nillu", "nilu"] },
-    { kn: "ಓಡು", phonetic: "Odu", en: "Run", emoji: "🏃", alts: ["ಓಡು", "odu", "oodu"] },
-    { kn: "ನೋಡು", phonetic: "Noodu", en: "Look", emoji: "👀", alts: ["ನೋಡು", "nodu", "noodu"] },
-    { kn: "ಚಪ್ಪಾಳೆ ತಟ್ಟು", phonetic: "Chappaale Thattu", en: "Clap hands", emoji: "👏", alts: ["ಚಪ್ಪಾಳೆ", "chappale", "thattu"] },
-    { kn: "ಕೈ ಎತ್ತು", phonetic: "Kai Etthu", en: "Raise hand", emoji: "🙋", alts: ["ಕೈ ಎತ್ತು", "kai", "etthu"] },
-    { kn: "ನಗು", phonetic: "Nagu", en: "Smile / Laugh", emoji: "😄", alts: ["ನಗು", "nagu"] }
+    { kn: "ಬಾ", audio: "act_baa", phonetic: "Baa", en: "Come here", emoji: "👋", alts: ["ಬಾ", "baa", "ba", "ಬಾರೋ"] },
+    { kn: "ಕುಳಿತುಕೋ", audio: "act_kulithuko", phonetic: "Kulithuko", en: "Sit down", emoji: "🪑", alts: ["ಕುಳಿತುಕೋ", "kulithuko", "kootko", "ಕೂತ್ಕೋ"] },
+    { kn: "ನಿಲ್ಲು", audio: "act_nillu", phonetic: "Nillu", en: "Stand up / Stop", emoji: "🛑", alts: ["ನಿಲ್ಲು", "nillu", "nilu"] },
+    { kn: "ಓಡು", audio: "act_odu", phonetic: "Odu", en: "Run", emoji: "🏃", alts: ["ಓಡು", "odu", "oodu"] },
+    { kn: "ನೋಡು", audio: "act_noodu", phonetic: "Noodu", en: "Look", emoji: "👀", alts: ["ನೋಡು", "nodu", "noodu"] },
+    { kn: "ಚಪ್ಪಾಳೆ ತಟ್ಟು", audio: "act_chappale", phonetic: "Chappaale Thattu", en: "Clap hands", emoji: "👏", alts: ["ಚಪ್ಪಾಳೆ", "chappale", "thattu"] },
+    { kn: "ಕೈ ಎತ್ತು", audio: "act_kai_etthu", phonetic: "Kai Etthu", en: "Raise hand", emoji: "🙋", alts: ["ಕೈ ಎತ್ತು", "kai", "etthu"] },
+    { kn: "ನಗು", audio: "act_nagu", phonetic: "Nagu", en: "Smile / Laugh", emoji: "😄", alts: ["ನಗು", "nagu"] }
   ];
 
   let mode = "listen";
@@ -287,18 +287,47 @@
   let idx = 0;
   let score = 0;
   let solved = false;
+  let currentAudio = null;
+  let bestKannadaVoice = null;
 
-  function shuffle(arr) {
-    return [...arr].sort(() => Math.random() - 0.5);
+  function loadBestVoice() {
+    if (!('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    const knVoices = voices.filter(v => v.lang.toLowerCase().includes('kn'));
+    bestKannadaVoice =
+      knVoices.find(v => /natural|online|google/i.test(v.name)) ||
+      knVoices[0] ||
+      null;
   }
 
-  function speakText(text) {
+  if ('speechSynthesis' in window) {
+    loadBestVoice();
+    window.speechSynthesis.onvoiceschanged = loadBestVoice;
+  }
+
+  function speakFallback(text) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'kn-IN';
-    u.rate = 0.85;
+    if (bestKannadaVoice) u.voice = bestKannadaVoice;
+    u.rate = 0.95;
+    u.pitch = 1.05;
     window.speechSynthesis.speak(u);
+  }
+
+  function playKannada(audioKey, fallbackText) {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+    const audio = new Audio(`../audio/${audioKey}.mp3`);
+    currentAudio = audio;
+    audio.play().catch(() => speakFallback(fallbackText));
+  }
+
+  function shuffle(arr) {
+    return [...arr].sort(() => Math.random() - 0.5);
   }
 
   function playTone(freq, dur = 0.16) {
@@ -331,7 +360,8 @@
   }
 
   function speakCommand() {
-    speakText(deck[idx].kn);
+    const item = deck[idx];
+    playKannada(item.audio, item.kn);
   }
 
   function loadItem() {
@@ -362,6 +392,7 @@
       document.getElementById('speakEmoji').textContent = item.emoji;
       document.getElementById('speakPromptEn').textContent = item.en;
       document.getElementById('speakPromptKn').textContent = `${item.kn} (${item.phonetic})`;
+      speakCommand();
     }
   }
 
@@ -378,12 +409,14 @@
       document.getElementById('nextBtn').style.display = 'inline-block';
       playTone(587.33, 0.14);
       setTimeout(() => playTone(880, 0.24), 120);
+      playKannada('praise_shahabbas', 'ಶಹಬ್ಬಾಸ್! ಸರಿ ಉತ್ತರ!');
     } else {
       btn.classList.add('wrong');
       btn.disabled = true;
       document.getElementById('feedbackText').style.color = '#b91c1c';
       document.getElementById('feedbackText').textContent = 'ಮತ್ತೊಮ್ಮೆ ಕೇಳಿ ಪ್ರಯತ್ನಿಸಿ (Listen & try again!)';
       playTone(200, 0.22);
+      playKannada('try_again', 'ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ');
     }
   }
 
@@ -414,6 +447,7 @@
         document.getElementById('feedbackText').style.color = '#b91c1c';
         document.getElementById('feedbackText').textContent = `Heard "${transcript}" — try saying "${item.phonetic}" again!`;
         playTone(200, 0.2);
+        playKannada('try_again', 'ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ');
       }
     };
     rec.onerror = () => {
@@ -440,6 +474,7 @@
     document.getElementById('nextBtn').style.display = 'inline-block';
     playTone(587.33, 0.14);
     setTimeout(() => playTone(880, 0.24), 120);
+    playKannada('praise_shahabbas', 'ಶಹಬ್ಬಾಸ್! ಸರಿ ಉತ್ತರ!');
   }
 
   function nextItem() {
