@@ -11,7 +11,7 @@
   <meta name="game:age" content="4-7, 8-12">
   <meta name="game:tags" content="Vyanjanagalu, Aksharamale, Audio, Quiz">
   <meta name="game:description" content="Practice all 34 Kannada consonants (ಕ to ಳ) by Varga group with audio pronunciation and picture clues.">
-  <meta name="game:author" content="Anand">
+  <meta name="game:author" content="Kannada Games Starter">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -309,7 +309,7 @@
     { char: "ಥ", varga: "ta_dental", word: "ರಥ", rest: "ರ_", emoji: "🛕", meaning: "Chariot (Ratha)", phonetic: "thha", endBlank: true },
     { char: "ದ", varga: "ta_dental", word: "ದೋಣಿ", rest: "ೋಣಿ", emoji: "🚣", meaning: "Boat (Doni)", phonetic: "da" },
     { char: "ಧ", varga: "ta_dental", word: "ಧನಸ್ಸು", rest: "ನಸ್ಸು", emoji: "🏹", meaning: "Bow (Dhanassu)", phonetic: "dha" },
-    { char: "ನ", varga: "ta_dental", word: "ನಾಯಿ", rest: "ಾಯಿ", emoji: "🐕", meaning: "Dog (Naayi)", phonetic: "na" },
+    { char: "ನ", varga: "ta_dental", word: "ನಾಯಿ", rest: "ಾಯಿ", audio: "ani_naayi", emoji: "🐕", meaning: "Dog (Naayi)", phonetic: "na" },
 
     { char: "ಪ", varga: "pa", word: "ಪಟ", rest: "ಟ", emoji: "🪁", meaning: "Kite (Pata)", phonetic: "pa" },
     { char: "ಫ", varga: "pa", word: "ಫಲ", rest: "ಲ", emoji: "🍎", meaning: "Fruit (Phala)", phonetic: "pha" },
@@ -339,14 +339,27 @@
   ];
 
   let selectedVarga = "all";
-  let mode = "picture"; // 'picture' or 'listen'
+  let mode = "picture";
   let deck = [];
   let currentIndex = 0;
   let score = 0;
   let answered = false;
+  let currentAudio = null;
+  let bestKannadaVoice = null;
 
-  function shuffle(arr) {
-    return [...arr].sort(() => Math.random() - 0.5);
+  function loadBestVoice() {
+    if (!('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    const knVoices = voices.filter(v => v.lang.toLowerCase().includes('kn'));
+    bestKannadaVoice =
+      knVoices.find(v => /natural|online|google/i.test(v.name)) ||
+      knVoices[0] ||
+      null;
+  }
+
+  if ('speechSynthesis' in window) {
+    loadBestVoice();
+    window.speechSynthesis.onvoiceschanged = loadBestVoice;
   }
 
   function speakText(text) {
@@ -354,8 +367,24 @@
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = 'kn-IN';
-    utter.rate = 0.85;
+    if (bestKannadaVoice) utter.voice = bestKannadaVoice;
+    utter.rate = 0.95;
+    utter.pitch = 1.05;
     window.speechSynthesis.speak(utter);
+  }
+
+  function playKannada(audioKey, fallbackText) {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+    const audio = new Audio(`../audio/${audioKey}.mp3`);
+    currentAudio = audio;
+    audio.play().catch(() => speakText(fallbackText));
+  }
+
+  function shuffle(arr) {
+    return [...arr].sort(() => Math.random() - 0.5);
   }
 
   function playTone(freq, duration = 0.18) {
@@ -414,7 +443,13 @@
 
   function speakPrompt() {
     const item = deck[currentIndex];
-    speakText(mode === 'listen' ? item.char : item.word);
+    if (mode === 'listen') {
+      speakText(item.char);
+    } else if (item.audio) {
+      playKannada(item.audio, item.word);
+    } else {
+      speakText(item.word);
+    }
   }
 
   function loadQuestion() {
@@ -473,13 +508,18 @@
 
       playTone(587.33, 0.15);
       setTimeout(() => playTone(880, 0.25), 120);
-      speakText(item.word);
+      if (item.audio) {
+        playKannada(item.audio, item.word);
+      } else {
+        speakText(item.word);
+      }
     } else {
       btn.classList.add('wrong');
       btn.disabled = true;
       document.getElementById('feedbackText').style.color = '#b91c1c';
       document.getElementById('feedbackText').textContent = 'ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ (Try again!)';
       playTone(200, 0.25);
+      playKannada('try_again', 'ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ');
     }
   }
 
