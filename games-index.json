@@ -58,8 +58,9 @@
     "title": "ಗುಣಿತಾಕ್ಷರ ಬ್ಲೆಂಡರ್ · Kannada Kagunita Blender",
     "path": "games/gunitakshara-blender.html",
     "category": "Aksharamale (Alphabet & Script)",
-    "level": "Intermediate",
+    "level": "Early Reader",
     "age": [
+      "4-7",
       "8-12"
     ],
     "tags": [
@@ -69,7 +70,7 @@
       "Audio"
     ],
     "description": "Combine Kannada consonants with vowel signs (matras) to blend Kagunita syllables and hear them spoken aloud.",
-    "author": "Anand"
+    "author": "Kannada Games Starter"
   },
   {
     "title": "ಸ್ವರ ಆಟ · Fill the Missing Swara (ಅ - ಅಃ)",
