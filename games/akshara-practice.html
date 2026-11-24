@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ವ್ಯಂಜನ ಆಟ · Kannada Consonant Practice (ಕ - ಳ)</title>
+
+  <!-- Directory Metadata -->
+  <meta name="game:category" content="Aksharamale (Alphabet & Script)">
+  <meta name="game:level" content="Beginner">
+  <meta name="game:age" content="4-7, 8-12">
+  <meta name="game:tags" content="Vyanjanagalu, Aksharamale, Audio, Quiz">
+  <meta name="game:description" content="Practice all 34 Kannada consonants (ಕ to ಳ) by Varga group with audio pronunciation and picture clues.">
+  <meta name="game:author" content="Anand">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@600;700;800&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Kannada', sans-serif;
+      background: linear-gradient(160deg, #eff6ff 0%, #dbeafe 50%, #e0e7ff 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      color: #1e293b;
+    }
+    .topbar {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.9rem;
+    }
+    .home-link, .chart-toggle {
+      text-decoration: none;
+      background: white;
+      color: #1d4ed8;
+      font-weight: 700;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      border: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      font-size: 0.88rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .score-pill {
+      background: #1e40af;
+      color: white;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      font-size: 0.92rem;
+    }
+    .card {
+      background: white;
+      width: 100%;
+      max-width: 680px;
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: 0 14px 35px rgba(30, 64, 175, 0.12);
+      text-align: center;
+    }
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .pill-btn {
+      background: #f1f5f9;
+      border: 2px solid transparent;
+      color: #334155;
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Kannada', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.38rem 0.75rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .pill-btn.active {
+      background: #dbeafe;
+      border-color: #2563eb;
+      color: #1e40af;
+    }
+    .mode-switch {
+      display: inline-flex;
+      background: #f1f5f9;
+      padding: 0.25rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #475569;
+      font-family: inherit;
+    }
+    .mode-btn.active {
+      background: #2563eb;
+      color: white;
+    }
+    .progress {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 0.75rem;
+    }
+    .prompt-card {
+      background: #f8fafc;
+      border: 3px dashed #60a5fa;
+      border-radius: 20px;
+      padding: 1.25rem;
+      margin: 0 auto 1.2rem;
+      max-width: 320px;
+      cursor: pointer;
+    }
+    .prompt-emoji {
+      font-size: 4.5rem;
+      line-height: 1.1;
+      display: block;
+    }
+    .prompt-word {
+      font-family: 'Noto Sans Kannada', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #1e3a8a;
+      margin-top: 0.35rem;
+    }
+    .prompt-sub {
+      font-size: 0.9rem;
+      color: #475569;
+      margin-top: 0.25rem;
+      font-weight: 600;
+    }
+    .speak-btn {
+      background: #dbeafe;
+      border: 1px solid #3b82f6;
+      color: #1e40af;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-bottom: 1.1rem;
+      font-family: inherit;
+    }
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      max-width: 440px;
+      margin: 0 auto 1.1rem;
+    }
+    .tile {
+      font-family: 'Noto Sans Kannada', sans-serif;
+      font-size: 2.1rem;
+      font-weight: 700;
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-bottom-width: 5px;
+      border-radius: 16px;
+      padding: 0.8rem 0;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.15s;
+    }
+    .tile:hover:not(:disabled) {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+    }
+    .tile.wrong {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #b91c1c;
+      animation: shake 0.3s;
+    }
+    .tile.correct {
+      background: #dcfce7;
+      border-color: #22c55e;
+      color: #15803d;
+    }
+    .feedback {
+      min-height: 1.7rem;
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin-bottom: 0.8rem;
+    }
+    .next-btn {
+      display: none;
+      background: #16a34a;
+      color: white;
+      border: none;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.7rem 1.75rem;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .chart-drawer {
+      display: none;
+      width: 100%;
+      max-width: 680px;
+      background: white;
+      border-radius: 20px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+    .chart-drawer.open { display: block; }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45rem;
+      margin-top: 0.75rem;
+    }
+    .chart-cell {
+      font-family: 'Noto Sans Kannada', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.45rem 0;
+      cursor: pointer;
+    }
+    .chart-cell:hover { background: #dbeafe; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="home-link" href="../index.html">← All Games</a>
+    <button class="chart-toggle" onclick="toggleChart()">📖 ವ್ಯಂಜನ ಪಟ್ಟಿ (Chart)</button>
+    <div class="score-pill">⭐ Stars: <span id="score">0</span></div>
+  </div>
+
+  <div class="chart-drawer" id="chartDrawer">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <strong>ವ್ಯಂಜನಗಳು (Tap any akshara to hear it)</strong>
+      <button class="pill-btn" onclick="toggleChart()">✕ Close</button>
+    </div>
+    <div class="chart-grid" id="chartGrid"></div>
+  </div>
+
+  <div class="card" id="gameCard">
+    <div class="mode-switch">
+      <button class="mode-btn active" id="modePicture" onclick="setMode('picture')">🖼️ Picture & First Letter</button>
+      <button class="mode-btn" id="modeListen" onclick="setMode('listen')">🔊 Listen & Spot</button>
+    </div>
+
+    <div class="controls-row" id="vargaFilters"></div>
+
+    <div class="progress" id="progressText">Question 1</div>
+
+    <div class="prompt-card" onclick="speakPrompt()" title="Tap to listen">
+      <span class="prompt-emoji" id="emojiDisplay">🪷</span>
+      <div class="prompt-word" id="wordDisplay">_ಮಲ</div>
+      <div class="prompt-sub" id="meaningDisplay">Lotus (Kamala)</div>
+    </div>
+
+    <button class="speak-btn" onclick="speakPrompt()">🔊 ಕೇಳಿ (Listen)</button>
+
+    <div class="choices" id="choicesGrid"></div>
+
+    <div class="feedback" id="feedbackText"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">ಮುಂದೆ (Next) ▶</button>
+  </div>
+
+<script>
+  const VYANJANAS = [
+    { char: "ಕ", varga: "ka", word: "ಕಮಲ", rest: "ಮಲ", emoji: "🪷", meaning: "Lotus (Kamala)", phonetic: "ka" },
+    { char: "ಖ", varga: "ka", word: "ಖಡ್ಗ", rest: "ಡ್ಗ", emoji: "⚔️", meaning: "Sword (Khadga)", phonetic: "kha" },
+    { char: "ಗ", varga: "ka", word: "ಗಡಿಯಾರ", rest: "ಡಿಯಾರ", emoji: "⏰", meaning: "Clock (Gadiyaara)", phonetic: "ga" },
+    { char: "ಘ", varga: "ka", word: "ಘಂಟೆ", rest: "ಂಟೆ", emoji: "🔔", meaning: "Bell (Ghante)", phonetic: "gha" },
+    { char: "ಙ", varga: "ka", word: "ಙ", rest: "", emoji: "🔤", meaning: "Akshara Nga", phonetic: "nga" },
+
+    { char: "ಚ", varga: "cha", word: "ಚಮಚ", rest: "ಮಚ", emoji: "🥄", meaning: "Spoon (Chamacha)", phonetic: "cha" },
+    { char: "ಛ", varga: "cha", word: "ಛತ್ರಿ", rest: "ತ್ರಿ", emoji: "☂️", meaning: "Umbrella (Chatri)", phonetic: "chha" },
+    { char: "ಜ", varga: "cha", word: "ಜನ", rest: "ನ", emoji: "👨‍👩‍👧", meaning: "People (Jana)", phonetic: "ja" },
+    { char: "ಝ", varga: "cha", word: "ಝರಿ", rest: "ರಿ", emoji: "🏞️", meaning: "Stream (Jhari)", phonetic: "jha" },
+    { char: "ಞ", varga: "cha", word: "ಞ", rest: "", emoji: "🔤", meaning: "Akshara Nya", phonetic: "nya" },
+
+    { char: "ಟ", varga: "ta_retro", word: "ಟೊಮೇಟೊ", rest: "ೊಮೇಟೊ", emoji: "🍅", meaning: "Tomato (Tomaato)", phonetic: "ta" },
+    { char: "ಠ", varga: "ta_retro", word: "ಠಸೆ", rest: "ಸೆ", emoji: "🔏", meaning: "Stamp (Thase)", phonetic: "tha" },
+    { char: "ಡ", varga: "ta_retro", word: "ಡಮರು", rest: "ಮರು", emoji: "🥁", meaning: "Drum (Damaru)", phonetic: "da" },
+    { char: "ಢ", varga: "ta_retro", word: "ಢಕ್ಕೆ", rest: "ಕ್ಕೆ", emoji: "🪘", meaning: "Large Drum (Dhakke)", phonetic: "dha" },
+    { char: "ಣ", varga: "ta_retro", word: "ಹಣ", rest: "ಹ_", emoji: "💰", meaning: "Money (Hana)", phonetic: "na", endBlank: true },
+
+    { char: "ತ", varga: "ta_dental", word: "ತಬಲ", rest: "ಬಲ", emoji: "🪘", meaning: "Tabla (Tabala)", phonetic: "tha" },
+    { char: "ಥ", varga: "ta_dental", word: "ರಥ", rest: "ರ_", emoji: "🛕", meaning: "Chariot (Ratha)", phonetic: "thha", endBlank: true },
+    { char: "ದ", varga: "ta_dental", word: "ದೋಣಿ", rest: "ೋಣಿ", emoji: "🚣", meaning: "Boat (Doni)", phonetic: "da" },
+    { char: "ಧ", varga: "ta_dental", word: "ಧನಸ್ಸು", rest: "ನಸ್ಸು", emoji: "🏹", meaning: "Bow (Dhanassu)", phonetic: "dha" },
+    { char: "ನ", varga: "ta_dental", word: "ನಾಯಿ", rest: "ಾಯಿ", emoji: "🐕", meaning: "Dog (Naayi)", phonetic: "na" },
+
+    { char: "ಪ", varga: "pa", word: "ಪಟ", rest: "ಟ", emoji: "🪁", meaning: "Kite (Pata)", phonetic: "pa" },
+    { char: "ಫ", varga: "pa", word: "ಫಲ", rest: "ಲ", emoji: "🍎", meaning: "Fruit (Phala)", phonetic: "pha" },
+    { char: "ಬ", varga: "pa", word: "ಬಸ್ಸು", rest: "ಸ್ಸು", emoji: "🚌", meaning: "Bus (Bassu)", phonetic: "ba" },
+    { char: "ಭ", varga: "pa", word: "ಭವನ", rest: "ವನ", emoji: "🏛️", meaning: "Building (Bhavana)", phonetic: "bha" },
+    { char: "ಮ", varga: "pa", word: "ಮರ", rest: "ರ", emoji: "🌳", meaning: "Tree (Mara)", phonetic: "ma" },
+
+    { char: "ಯ", varga: "avargiya", word: "ಯಂತ್ರ", rest: "ಂತ್ರ", emoji: "⚙️", meaning: "Machine (Yantra)", phonetic: "ya" },
+    { char: "ರ", varga: "avargiya", word: "ರವಿ", rest: "ವಿ", emoji: "☀️", meaning: "Sun (Ravi)", phonetic: "ra" },
+    { char: "ಲ", varga: "avargiya", word: "ಲಡ್ಡು", rest: "ಡ್ಡು", emoji: "🟡", meaning: "Laddu (Laddu)", phonetic: "la" },
+    { char: "ವ", varga: "avargiya", word: "ವನ", rest: "ನ", emoji: "🌲", meaning: "Forest (Vana)", phonetic: "va" },
+    { char: "ಶ", varga: "avargiya", word: "ಶಂಖ", rest: "ಂಖ", emoji: "🐚", meaning: "Conch (Shankha)", phonetic: "sha" },
+    { char: "ಷ", varga: "avargiya", word: "ಷಟ್ಕೋನ", rest: "ಟ್ಕೋನ", emoji: "⬡", meaning: "Hexagon (Shatkona)", phonetic: "ssha" },
+    { char: "ಸ", varga: "avargiya", word: "ಸರ", rest: "ರ", emoji: "📿", meaning: "Necklace (Sara)", phonetic: "sa" },
+    { char: "ಹ", varga: "avargiya", word: "ಹಣ್ಣು", rest: "ಣ್ಣು", emoji: "🍇", meaning: "Fruit (Hannu)", phonetic: "ha" },
+    { char: "ಳ", varga: "avargiya", word: "ಬಾಳೆ", rest: "ಬಾ_", emoji: "🍌", meaning: "Banana (Baale)", phonetic: "lla", endBlank: true }
+  ];
+
+  const VARGAS = [
+    { id: "all", label: "ಎಲ್ಲಾ (All 34)" },
+    { id: "ka", label: "ಕ - ಙ" },
+    { id: "cha", label: "ಚ - ಞ" },
+    { id: "ta_retro", label: "ಟ - ಣ" },
+    { id: "ta_dental", label: "ತ - ನ" },
+    { id: "pa", label: "ಪ - ಮ" },
+    { id: "avargiya", label: "ಯ - ಳ" }
+  ];
+
+  let selectedVarga = "all";
+  let mode = "picture"; // 'picture' or 'listen'
+  let deck = [];
+  let currentIndex = 0;
+  let score = 0;
+  let answered = false;
+
+  function shuffle(arr) {
+    return [...arr].sort(() => Math.random() - 0.5);
+  }
+
+  function speakText(text) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'kn-IN';
+    utter.rate = 0.85;
+    window.speechSynthesis.speak(utter);
+  }
+
+  function playTone(freq, duration = 0.18) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+      osc.stop(ctx.currentTime + duration);
+    } catch (_) {}
+  }
+
+  function buildChart() {
+    const grid = document.getElementById('chartGrid');
+    grid.innerHTML = VYANJANAS.map(v =>
+      `<button class="chart-cell" onclick="speakText('${v.char}')">${v.char}</button>`
+    ).join('');
+  }
+
+  function toggleChart() {
+    document.getElementById('chartDrawer').classList.toggle('open');
+  }
+
+  function buildVargaButtons() {
+    const row = document.getElementById('vargaFilters');
+    row.innerHTML = VARGAS.map(v =>
+      `<button class="pill-btn ${v.id === selectedVarga ? 'active' : ''}" onclick="selectVarga('${v.id}')">${v.label}</button>`
+    ).join('');
+  }
+
+  function selectVarga(id) {
+    selectedVarga = id;
+    buildVargaButtons();
+    startGame();
+  }
+
+  function setMode(newMode) {
+    mode = newMode;
+    document.getElementById('modePicture').classList.toggle('active', mode === 'picture');
+    document.getElementById('modeListen').classList.toggle('active', mode === 'listen');
+    loadQuestion();
+  }
+
+  function startGame() {
+    const pool = selectedVarga === "all"
+      ? VYANJANAS
+      : VYANJANAS.filter(v => v.varga === selectedVarga);
+    deck = shuffle(pool);
+    currentIndex = 0;
+    loadQuestion();
+  }
+
+  function speakPrompt() {
+    const item = deck[currentIndex];
+    speakText(mode === 'listen' ? item.char : item.word);
+  }
+
+  function loadQuestion() {
+    answered = false;
+    const item = deck[currentIndex];
+    document.getElementById('progressText').textContent = `Question ${currentIndex + 1} of ${deck.length}`;
+    document.getElementById('feedbackText').textContent = '';
+    document.getElementById('nextBtn').style.display = 'none';
+
+    if (mode === 'picture') {
+      document.getElementById('emojiDisplay').textContent = item.emoji;
+      const blankWord = item.rest === ""
+        ? "?"
+        : (item.endBlank ? item.rest.replace("_", "?") : `?${item.rest}`);
+      document.getElementById('wordDisplay').textContent = blankWord;
+      document.getElementById('meaningDisplay').textContent = item.meaning;
+    } else {
+      document.getElementById('emojiDisplay').textContent = "🔊";
+      document.getElementById('wordDisplay').textContent = "ಕೇಳಿ ಆರಿಸಿ";
+      document.getElementById('meaningDisplay').textContent = `Tap Listen (${item.phonetic})`;
+      speakText(item.char);
+    }
+
+    const distractorPool = VYANJANAS.filter(v => v.char !== item.char);
+    const distractors = shuffle(distractorPool).slice(0, 5).map(v => v.char);
+    const options = shuffle([item.char, ...distractors]);
+
+    const grid = document.getElementById('choicesGrid');
+    grid.innerHTML = '';
+    options.forEach(letter => {
+      const btn = document.createElement('button');
+      btn.className = 'tile';
+      btn.textContent = letter;
+      btn.onclick = () => checkAnswer(btn, letter);
+      grid.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(btn, chosen) {
+    if (answered) return;
+    const item = deck[currentIndex];
+
+    if (chosen === item.char) {
+      answered = true;
+      btn.classList.add('correct');
+      score++;
+      document.getElementById('score').textContent = score;
+      if (mode === 'picture') {
+        document.getElementById('wordDisplay').textContent = item.word;
+      } else {
+        document.getElementById('wordDisplay').textContent = `${item.char} (${item.word})`;
+      }
+      document.getElementById('feedbackText').style.color = '#15803d';
+      document.getElementById('feedbackText').textContent = `ಶಹಬ್ಬಾಸ್! "${item.char}" ಸರಿ ಉತ್ತರ! 🎉`;
+      document.getElementById('nextBtn').style.display = 'inline-block';
+
+      playTone(587.33, 0.15);
+      setTimeout(() => playTone(880, 0.25), 120);
+      speakText(item.word);
+    } else {
+      btn.classList.add('wrong');
+      btn.disabled = true;
+      document.getElementById('feedbackText').style.color = '#b91c1c';
+      document.getElementById('feedbackText').textContent = 'ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ (Try again!)';
+      playTone(200, 0.25);
+    }
+  }
+
+  function nextQuestion() {
+    currentIndex++;
+    if (currentIndex < deck.length) {
+      loadQuestion();
+    } else {
+      document.getElementById('gameCard').innerHTML = `
+        <div style="font-size:4rem;margin-bottom:0.5rem;">🏆</div>
+        <h2 style="font-size:1.8rem;color:#1e40af;margin-bottom:0.5rem;">ಅಭಿನಂದನೆಗಳು! Great Job!</h2>
+        <p style="font-size:1.1rem;margin-bottom:1.5rem;">You practiced ${deck.length} Vyanjanagalu and earned <strong>${score} ⭐</strong>!</p>
+        <button class="next-btn" style="display:inline-block;" onclick="location.reload()">ಮತ್ತೆ ಆಡಿ (Play Again)</button>
+      `;
+    }
+  }
+
+  buildChart();
+  buildVargaButtons();
+  startGame();
+</script>
+</body>
+</html>
