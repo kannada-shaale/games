@@ -7,11 +7,11 @@
 
   <!-- Directory Metadata -->
   <meta name="game:category" content="Aksharamale (Alphabet & Script)">
-  <meta name="game:level" content="Intermediate">
-  <meta name="game:age" content="8-12">
+  <meta name="game:level" content="Early Reader">
+  <meta name="game:age" content="4-7, 8-12">
   <meta name="game:tags" content="Gunitakshara, Kagunita, Aksharamale, Audio">
   <meta name="game:description" content="Combine Kannada consonants with vowel signs (matras) to blend Kagunita syllables and hear them spoken aloud.">
-  <meta name="game:author" content="Anand">
+  <meta name="game:author" content="Kannada Games Starter">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -422,14 +422,43 @@
   let challengeDeck = [];
   let challengeIdx = 0;
   let challengeSolved = false;
+  let currentAudio = null;
+  let bestKannadaVoice = null;
+
+  function loadBestVoice() {
+    if (!('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    const knVoices = voices.filter(v => v.lang.toLowerCase().includes('kn'));
+    bestKannadaVoice =
+      knVoices.find(v => /natural|online|google/i.test(v.name)) ||
+      knVoices[0] ||
+      null;
+  }
+
+  if ('speechSynthesis' in window) {
+    loadBestVoice();
+    window.speechSynthesis.onvoiceschanged = loadBestVoice;
+  }
 
   function speakText(text) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = 'kn-IN';
-    utter.rate = 0.85;
+    if (bestKannadaVoice) utter.voice = bestKannadaVoice;
+    utter.rate = 0.95;
+    utter.pitch = 1.05;
     window.speechSynthesis.speak(utter);
+  }
+
+  function playKannada(audioKey, fallbackText) {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+    const audio = new Audio(`../audio/${audioKey}.mp3`);
+    currentAudio = audio;
+    audio.play().catch(() => speakText(fallbackText));
   }
 
   function playTone(freq, duration = 0.16) {
@@ -549,11 +578,12 @@
       document.getElementById('nextBtn').style.display = 'inline-block';
       playTone(587.33, 0.14);
       setTimeout(() => playTone(880, 0.25), 110);
-      speakText(item.c);
+      playKannada('praise_shahabbas', 'ಶಹಬ್ಬಾಸ್! ಸರಿ ಉತ್ತರ!');
     } else {
       document.getElementById('feedbackText').style.color = '#b91c1c';
       document.getElementById('feedbackText').textContent = `ನೀವು "${currentBlend}" ಮಾಡಿದ್ದೀರಿ — ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ! (Try again)`;
       playTone(200, 0.22);
+      playKannada('try_again', 'ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ');
     }
   }
 
