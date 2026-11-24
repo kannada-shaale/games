@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ಗುಣಿತಾಕ್ಷರ ಬ್ಲೆಂಡರ್ · Kannada Kagunita Blender</title>
+
+  <!-- Directory Metadata -->
+  <meta name="game:category" content="Aksharamale (Alphabet & Script)">
+  <meta name="game:level" content="Intermediate">
+  <meta name="game:age" content="8-12">
+  <meta name="game:tags" content="Gunitakshara, Kagunita, Aksharamale, Audio">
+  <meta name="game:description" content="Combine Kannada consonants with vowel signs (matras) to blend Kagunita syllables and hear them spoken aloud.">
+  <meta name="game:author" content="Anand">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@600;700;800&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Kannada', sans-serif;
+      background: linear-gradient(160deg, #fdf4ff 0%, #fae8ff 50%, #e0e7ff 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      color: #1e1b4b;
+    }
+    .topbar {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.9rem;
+    }
+    .home-link {
+      text-decoration: none;
+      background: white;
+      color: #7e22ce;
+      font-weight: 700;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      font-size: 0.9rem;
+    }
+    .score-pill {
+      background: #6b21a8;
+      color: white;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      font-size: 0.92rem;
+    }
+    .card {
+      background: white;
+      width: 100%;
+      max-width: 720px;
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: 0 14px 35px rgba(107, 33, 168, 0.13);
+      text-align: center;
+    }
+    .mode-switch {
+      display: inline-flex;
+      background: #f3e8ff;
+      padding: 0.25rem;
+      border-radius: 999px;
+      margin-bottom: 1.1rem;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      color: #581c87;
+      font-family: inherit;
+    }
+    .mode-btn.active {
+      background: #7e22ce;
+      color: white;
+    }
+
+    /* Blender Stage */
+    .blender-stage {
+      background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+      border: 2px solid #d8b4fe;
+      border-radius: 20px;
+      padding: 1.25rem 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .target-banner {
+      display: none;
+      background: #fef3c7;
+      border: 2px dashed #f59e0b;
+      border-radius: 14px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+    }
+    .target-banner.visible { display: block; }
+    .target-title {
+      font-size: 0.88rem;
+      color: #92400e;
+      font-weight: 700;
+    }
+    .target-word {
+      font-family: 'Noto Sans Kannada', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #b45309;
+      margin-top: 0.2rem;
+    }
+    .equation {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.85rem;
+    }
+    .slot {
+      font-family: 'Noto Sans Kannada', sans-serif;
+      min-width: 78px;
+      height: 78px;
+      border-radius: 18px;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.3rem;
+      font-weight: 800;
+      background: white;
+      border: 3px solid #c084fc;
+      color: #581c87;
+      padding: 0 0.6rem;
+    }
+    .slot.result {
+      min-width: 105px;
+      height: 92px;
+      font-size: 3rem;
+      background: #7e22ce;
+      border-color: #581c87;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(126, 34, 206, 0.28);
+      transition: transform 0.15s;
+    }
+    .slot.result:active { transform: scale(0.95); }
+    .slot.pop { animation: pop 0.28s ease; }
+    .op {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #9333ea;
+    }
+    .example-box {
+      font-size: 0.95rem;
+      color: #4c1d95;
+      font-weight: 700;
+      min-height: 1.5rem;
+    }
+    .speak-btn {
+      margin-top: 0.65rem;
+      background: white;
+      border: 1px solid #a855f7;
+      color: #6b21a8;
+      font-weight: 700;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-family: inherit;
+    }
+
+    /* Pickers */
+    .picker-section {
+      text-align: left;
+      margin-bottom: 1rem;
+    }
+    .picker-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #6b7280;
+      margin-bottom: 0.45rem;
+      display: block;
+    }
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+      gap: 0.45rem;
+    }
+    .pick-tile {
+      font-family: 'Noto Sans Kannada', sans-serif;
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-bottom-width: 4px;
+      border-radius: 12px;
+      padding: 0.45rem 0.2rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.12s;
+    }
+    .pick-tile .main-glyph {
+      display: block;
+      font-size: 1.55rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .pick-tile .sub-glyph {
+      display: block;
+      font-size: 0.72rem;
+      color: #64748b;
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Kannada', sans-serif;
+    }
+    .pick-tile:hover {
+      background: #faf5ff;
+      border-color: #a855f7;
+    }
+    .pick-tile.selected {
+      background: #f3e8ff;
+      border-color: #7e22ce;
+      color: #581c87;
+      transform: translateY(-2px);
+    }
+
+    .action-row {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .check-btn, .next-btn {
+      background: #16a34a;
+      color: white;
+      border: none;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.7rem 1.6rem;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .feedback {
+      min-height: 1.6rem;
+      font-weight: 700;
+      font-size: 1.02rem;
+      margin-top: 0.75rem;
+    }
+    @keyframes pop {
+      0% { transform: scale(0.85); }
+      60% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="home-link" href="../index.html">← All Games</a>
+    <div class="score-pill">⭐ Stars: <span id="score">0</span></div>
+  </div>
+
+  <div class="card">
+    <div class="mode-switch">
+      <button class="mode-btn active" id="btnExplore" onclick="setMode('explore')">🧪 Blend Lab (Explore)</button>
+      <button class="mode-btn" id="btnChallenge" onclick="setMode('challenge')">🎯 Build Challenge</button>
+    </div>
+
+    <div class="blender-stage">
+      <div class="target-banner" id="targetBanner">
+        <div class="target-title" id="targetHint">Blend the missing akshara to complete the word:</div>
+        <div class="target-word" id="targetWord">_ಟಗಿ (Kite)</div>
+      </div>
+
+      <div class="equation">
+        <div class="slot" id="consonantSlot">ಕ</div>
+        <span class="op">+</span>
+        <div class="slot" id="matraSlot">ಾ</div>
+        <span class="op">=</span>
+        <div class="slot result" id="resultSlot" onclick="speakBlended()" title="Tap to hear">ಕಾ</div>
+      </div>
+
+      <div class="example-box" id="exampleBox">ಕಾಡು (Kaadu · Forest) 🌲</div>
+      <button class="speak-btn" onclick="speakBlended()">🔊 ಕೇಳಿ (Listen)</button>
+    </div>
+
+    <div class="picker-section">
+      <span class="picker-label">1. ವ್ಯಂಜನ ಆರಿಸಿ (Pick a Consonant):</span>
+      <div class="tile-grid" id="consonantGrid"></div>
+    </div>
+
+    <div class="picker-section">
+      <span class="picker-label">2. ಸ್ವರ ಚಿಹ್ನೆ ಆರಿಸಿ (Pick a Vowel Sign / Matra):</span>
+      <div class="tile-grid" id="matraGrid"></div>
+    </div>
+
+    <div class="feedback" id="feedbackText"></div>
+
+    <div class="action-row" id="challengeControls" style="display:none;">
+      <button class="check-btn" id="checkBtn" onclick="checkChallenge()">✔ ಪರಿಶೀಲಿಸಿ (Check)</button>
+      <button class="next-btn" id="nextBtn" style="display:none;" onclick="nextChallenge()">ಮುಂದೆ (Next) ▶</button>
+    </div>
+  </div>
+
+<script>
+  const CONSONANTS = [
+    { char: "ಕ", roman: "k" },
+    { char: "ಗ", roman: "g" },
+    { char: "ಚ", roman: "ch" },
+    { char: "ಜ", roman: "j" },
+    { char: "ಟ", roman: "t" },
+    { char: "ಡ", roman: "d" },
+    { char: "ತ", roman: "th" },
+    { char: "ದ", roman: "dh" },
+    { char: "ನ", roman: "n" },
+    { char: "ಪ", roman: "p" },
+    { char: "ಬ", roman: "b" },
+    { char: "ಮ", roman: "m" },
+    { char: "ರ", roman: "r" },
+    { char: "ಲ", roman: "l" },
+    { char: "ವ", roman: "v" },
+    { char: "ಸ", roman: "s" },
+    { char: "ಹ", roman: "h" }
+  ];
+
+  const MATRAS = [
+    { sign: "", display: "ಅ", label: "a", vowel: "ಅ" },
+    { sign: "ಾ", display: "ಾ", label: "aa", vowel: "ಆ" },
+    { sign: "ಿ", display: "ಿ", label: "i", vowel: "ಇ" },
+    { sign: "ೀ", display: "ೀ", label: "ee", vowel: "ಈ" },
+    { sign: "ು", display: "ು", label: "u", vowel: "ಉ" },
+    { sign: "ೂ", display: "ೂ", label: "oo", vowel: "ಊ" },
+    { sign: "ೃ", display: "ೃ", label: "ru", vowel: "ಋ" },
+    { sign: "ೆ", display: "ೆ", label: "e", vowel: "ಎ" },
+    { sign: "ೇ", display: "ೇ", label: "ae", vowel: "ಏ" },
+    { sign: "ೈ", display: "ೈ", label: "ai", vowel: "ಐ" },
+    { sign: "ೊ", display: "ೊ", label: "o", vowel: "ಒ" },
+    { sign: "ೋ", display: "ೋ", label: "oa", vowel: "ಓ" },
+    { sign: "ೌ", display: "ೌ", label: "au", vowel: "ಔ" },
+    { sign: "ಂ", display: "ಂ", label: "am", vowel: "ಅಂ" },
+    { sign: "ಃ", display: "ಃ", label: "aha", vowel: "ಅಃ" }
+  ];
+
+  // Sample words for popular consonant+matra blends
+  const SAMPLE_WORDS = {
+    "ಕ": "ಕಮಲ (Lotus) 🪷",
+    "ಕಾ": "ಕಾಡು (Forest) 🌲",
+    "ಕಿ": "ಕಿಟಕಿ (Window) 🪟",
+    "ಕೀ": "ಕೀಲಿ (Key) 🔑",
+    "ಕು": "ಕುದುರೆ (Horse) 🐎",
+    "ಕೂ": "ಕೂದಲು (Hair) 💇",
+    "ಕೆ": "ಕೆಂಪು (Red) 🔴",
+    "ಕೇ": "ಕೇಸರಿ (Saffron) 🟠",
+    "ಕೈ": "ಕೈ (Hand) ✋",
+    "ಕೊ": "ಕೊಡೆ (Umbrella) ☂️",
+    "ಕೋ": "ಕೋತಿ (Monkey) 🐒",
+    "ಕೌ": "ಕೌದಿ (Quilt) 🛏️",
+    "ಗಾ": "ಗಾಳಿಪಟ (Kite) 🪁",
+    "ಗಿ": "ಗಿಳಿ (Parrot) 🦜",
+    "ಗು": "ಗುಲಾಬಿ (Rose) 🌹",
+    "ಗೂ": "ಗೂಡು (Nest) 🪺",
+    "ಚಂ": "ಚಂದ್ರ (Moon) 🌙",
+    "ಚೀ": "ಚೀಲ (Bag) 🎒",
+    "ಜೇ": "ಜೇನು (Honey) 🍯",
+    "ಟೊ": "ಟೊಮೇಟೊ (Tomato) 🍅",
+    "ತಾ": "ತಾವರೆ (Lotus) 🪷",
+    "ತು": "ತುಪ್ಪ (Ghee) 🥣",
+    "ದೀ": "ದೀಪ (Lamp) 🪔",
+    "ದೋ": "ದೋಣಿ (Boat) 🚣",
+    "ನೀ": "ನೀಲಿ (Blue) 🔵",
+    "ನೇ": "ನೇಗಿಲು (Plough) 🌾",
+    "ಪು": "ಪುಸ್ತಕ (Book) 📚",
+    "ಪೇ": "ಪೇಟೆ (Market) 🏪",
+    "ಬಾ": "ಬಾಳೆಹಣ್ಣು (Banana) 🍌",
+    "ಬೆ": "ಬೆಕ್ಕು (Cat) 🐈",
+    "ಬೈ": "ಬೈಸಿಕಲ್ (Bicycle) 🚲",
+    "ಮ": "ಮರ (Tree) 🌳",
+    "ಮಾ": "ಮಾವು (Mango) 🥭",
+    "ಮಿ": "ಮಿಂಚು (Lightning) ⚡",
+    "ಮೀ": "ಮೀನು (Fish) 🐟",
+    "ಮೂ": "ಮೂಗು (Nose) 👃",
+    "ಮೇ": "ಮೇಜು (Table) 🪑",
+    "ಮೊ": "ಮೊಲ (Rabbit) 🐇",
+    "ರೈ": "ರೈಲು (Train) 🚆",
+    "ಸೂ": "ಸೂರ್ಯ (Sun) ☀️",
+    "ಹೂ": "ಹೂವು (Flower) 🌸",
+    "ಹೌ": "ಹೌದು (Yes) 👍"
+  };
+
+  // Curated challenges for Build Challenge mode
+  const CHALLENGES = [
+    { c: "ಕಾ", cons: "ಕ", sign: "ಾ", prompt: "___ಡು (Kaadu · Forest) 🌲" },
+    { c: "ಕಿ", cons: "ಕ", sign: "ಿ", prompt: "___ಟಕಿ (Kitaki · Window) 🪟" },
+    { c: "ಕೈ", cons: "ಕ", sign: "ೈ", prompt: "___ (Kai · Hand) ✋" },
+    { c: "ಕೋ", cons: "ಕ", sign: "ೋ", prompt: "___ತಿ (Kothi · Monkey) 🐒" },
+    { c: "ಗಿ", cons: "ಗ", sign: "ಿ", prompt: "___ಳಿ (Gili · Parrot) 🦜" },
+    { c: "ಗು", cons: "ಗ", sign: "ು", prompt: "___ಲಾಬಿ (Gulaabi · Rose) 🌹" },
+    { c: "ಚಂ", cons: "ಚ", sign: "ಂ", prompt: "___ದ್ರ (Chandra · Moon) 🌙" },
+    { c: "ದೀ", cons: "ದ", sign: "ೀ", prompt: "___ಪ (Deepa · Lamp) 🪔" },
+    { c: "ದೋ", cons: "ದ", sign: "ೋ", prompt: "___ಣಿ (Doni · Boat) 🚣" },
+    { c: "ನೀ", cons: "ನ", sign: "ೀ", prompt: "___ಲಿ (Neeli · Blue) 🔵" },
+    { c: "ಪು", cons: "ಪ", sign: "ು", prompt: "___ಸ್ತಕ (Pustaka · Book) 📚" },
+    { c: "ಬಾ", cons: "ಬ", sign: "ಾ", prompt: "___ಳೆಹಣ್ಣು (Baalehannu · Banana) 🍌" },
+    { c: "ಬೆ", cons: "ಬ", sign: "ೆ", prompt: "___ಕ್ಕು (Bekku · Cat) 🐈" },
+    { c: "ಮೀ", cons: "ಮ", sign: "ೀ", prompt: "___ನು (Meenu · Fish) 🐟" },
+    { c: "ಮೊ", cons: "ಮ", sign: "ೊ", prompt: "___ಲ (Mola · Rabbit) 🐇" },
+    { c: "ರೈ", cons: "ರ", sign: "ೈ", prompt: "___ಲು (Railu · Train) 🚆" },
+    { c: "ಸೂ", cons: "ಸ", sign: "ೂ", prompt: "___ರ್ಯ (Soorya · Sun) ☀️" },
+    { c: "ಹೂ", cons: "ಹ", sign: "ೂ", prompt: "___ವು (Hoovu · Flower) 🌸" }
+  ];
+
+  let mode = "explore";
+  let selectedCons = "ಕ";
+  let selectedSign = "ಾ";
+  let score = 0;
+  let challengeDeck = [];
+  let challengeIdx = 0;
+  let challengeSolved = false;
+
+  function speakText(text) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'kn-IN';
+    utter.rate = 0.85;
+    window.speechSynthesis.speak(utter);
+  }
+
+  function playTone(freq, duration = 0.16) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+      osc.stop(ctx.currentTime + duration);
+    } catch (_) {}
+  }
+
+  function renderPickers() {
+    const cGrid = document.getElementById('consonantGrid');
+    cGrid.innerHTML = CONSONANTS.map(item => `
+      <button class="pick-tile ${item.char === selectedCons ? 'selected' : ''}" onclick="pickConsonant('${item.char}')">
+        <span class="main-glyph">${item.char}</span>
+        <span class="sub-glyph">${item.roman}</span>
+      </button>
+    `).join('');
+
+    const mGrid = document.getElementById('matraGrid');
+    mGrid.innerHTML = MATRAS.map(m => `
+      <button class="pick-tile ${m.sign === selectedSign ? 'selected' : ''}" onclick="pickMatra('${m.sign}')">
+        <span class="main-glyph">${m.sign ? '◌' + m.sign : 'ಅ'}</span>
+        <span class="sub-glyph">${m.vowel} (${m.label})</span>
+      </button>
+    `).join('');
+  }
+
+  function updateBlender(shouldSpeak = true) {
+    const blended = selectedCons + selectedSign;
+    const matraObj = MATRAS.find(m => m.sign === selectedSign);
+
+    document.getElementById('consonantSlot').textContent = selectedCons;
+    document.getElementById('matraSlot').textContent = selectedSign ? '◌' + selectedSign : 'ಅ';
+
+    const resSlot = document.getElementById('resultSlot');
+    resSlot.textContent = blended;
+    resSlot.classList.remove('pop');
+    void resSlot.offsetWidth;
+    resSlot.classList.add('pop');
+
+    if (mode === 'explore') {
+      const sample = SAMPLE_WORDS[blended];
+      document.getElementById('exampleBox').textContent = sample
+        ? `ಉದಾಹರಣೆ: ${sample}`
+        : `${selectedCons} + ${matraObj.vowel} = ${blended}`;
+    } else {
+      document.getElementById('exampleBox').textContent = `${selectedCons} + ${matraObj.vowel} = ${blended}`;
+    }
+
+    renderPickers();
+    if (shouldSpeak) speakText(blended);
+  }
+
+  function pickConsonant(c) {
+    selectedCons = c;
+    playTone(440, 0.08);
+    updateBlender(true);
+  }
+
+  function pickMatra(s) {
+    selectedSign = s;
+    playTone(523.25, 0.08);
+    updateBlender(true);
+  }
+
+  function speakBlended() {
+    speakText(selectedCons + selectedSign);
+  }
+
+  function setMode(newMode) {
+    mode = newMode;
+    document.getElementById('btnExplore').classList.toggle('active', mode === 'explore');
+    document.getElementById('btnChallenge').classList.toggle('active', mode === 'challenge');
+    document.getElementById('targetBanner').classList.toggle('visible', mode === 'challenge');
+    document.getElementById('challengeControls').style.display = mode === 'challenge' ? 'flex' : 'none';
+    document.getElementById('feedbackText').textContent = '';
+
+    if (mode === 'challenge') {
+      challengeDeck = [...CHALLENGES].sort(() => Math.random() - 0.5);
+      challengeIdx = 0;
+      loadChallenge();
+    } else {
+      updateBlender(false);
+    }
+  }
+
+  function loadChallenge() {
+    challengeSolved = false;
+    const item = challengeDeck[challengeIdx];
+    document.getElementById('targetHint').textContent = `Challenge ${challengeIdx + 1} of ${challengeDeck.length} — Blend the missing akshara:`;
+    document.getElementById('targetWord').textContent = item.prompt;
+    document.getElementById('feedbackText').textContent = '';
+    document.getElementById('checkBtn').style.display = 'inline-block';
+    document.getElementById('nextBtn').style.display = 'none';
+    updateBlender(false);
+  }
+
+  function checkChallenge() {
+    if (challengeSolved) return;
+    const item = challengeDeck[challengeIdx];
+    const currentBlend = selectedCons + selectedSign;
+
+    if (currentBlend === item.c) {
+      challengeSolved = true;
+      score++;
+      document.getElementById('score').textContent = score;
+      document.getElementById('feedbackText').style.color = '#15803d';
+      document.getElementById('feedbackText').textContent = `ಶಹಬ್ಬಾಸ್! "${item.c}" ಸರಿ ಉತ್ತರ! 🎉`;
+      document.getElementById('checkBtn').style.display = 'none';
+      document.getElementById('nextBtn').style.display = 'inline-block';
+      playTone(587.33, 0.14);
+      setTimeout(() => playTone(880, 0.25), 110);
+      speakText(item.c);
+    } else {
+      document.getElementById('feedbackText').style.color = '#b91c1c';
+      document.getElementById('feedbackText').textContent = `ನೀವು "${currentBlend}" ಮಾಡಿದ್ದೀರಿ — ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ! (Try again)`;
+      playTone(200, 0.22);
+    }
+  }
+
+  function nextChallenge() {
+    challengeIdx = (challengeIdx + 1) % challengeDeck.length;
+    loadChallenge();
+  }
+
+  updateBlender(false);
+</script>
+</body>
+</html>
