@@ -1,5 +1,23 @@
 [
   {
+    "title": "ಆಕ್ಷನ್ ಆಟ · Kannada Action Commands (Listen & Speak)",
+    "path": "games/action-simon-says.html",
+    "category": "Listening & Speaking",
+    "level": "Beginner",
+    "age": [
+      "4-7"
+    ],
+    "tags": [
+      "Actions",
+      "Listening",
+      "Speaking",
+      "Voice/Mic",
+      "No-Script"
+    ],
+    "description": "Listen to spoken Kannada action commands like Baa, Nillu, and Odu, match the right action, and practice saying them aloud.",
+    "author": "Kannada Games Starter"
+  },
+  {
     "title": "ವ್ಯಂಜನ ಆಟ · Kannada Consonant Practice (ಕ - ಳ)",
     "path": "games/akshara-practice.html",
     "category": "Aksharamale (Alphabet & Script)",
