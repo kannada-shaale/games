@@ -1,5 +1,23 @@
 [
   {
+    "title": "ವ್ಯಂಜನ ಆಟ · Kannada Consonant Practice (ಕ - ಳ)",
+    "path": "games/akshara-practice.html",
+    "category": "Aksharamale (Alphabet & Script)",
+    "level": "Beginner",
+    "age": [
+      "4-7",
+      "8-12"
+    ],
+    "tags": [
+      "Vyanjanagalu",
+      "Aksharamale",
+      "Audio",
+      "Quiz"
+    ],
+    "description": "Practice all 34 Kannada consonants (ಕ to ಳ) by Varga group with audio pronunciation and picture clues.",
+    "author": "Anand"
+  },
+  {
     "title": "ಸ್ವರ ಆಟ · Fill the Missing Swara (ಅ - ಅಃ)",
     "path": "games/swara-fill.html",
     "category": "Aksharamale (Alphabet & Script)",
