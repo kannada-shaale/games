@@ -201,32 +201,61 @@
 
 <script>
   const ANIMALS = [
-    { kn: "ನಾಯಿ", phonetic: "Naayi", en: "Dog", soundKn: "ಬೌ ಬೌ", soundEn: "Bow-Bow!", emoji: "🐕" },
-    { kn: "ಬೆಕ್ಕು", phonetic: "Bekku", en: "Cat", soundKn: "ಮಿಯಾಂವ್", soundEn: "Meow-Meow!", emoji: "🐈" },
-    { kn: "ಹಸು", phonetic: "Hasu", en: "Cow", soundKn: "ಅಂಬಾ", soundEn: "Moo!", emoji: "🐄" },
-    { kn: "ಆನೆ", phonetic: "Aane", en: "Elephant", soundKn: "ಘೀಳಿಡು", soundEn: "Trumpet!", emoji: "🐘" },
-    { kn: "ಕೋತಿ", phonetic: "Kothi", en: "Monkey", soundKn: "ಕಿಚ ಕಿಚ", soundEn: "Chatter!", emoji: "🐒" },
-    { kn: "ಸಿಂಹ", phonetic: "Simha", en: "Lion", soundKn: "ಗರ್ಜನೆ", soundEn: "Roar!", emoji: "🦁" },
-    { kn: "ಕಪ್ಪೆ", phonetic: "Kappe", en: "Frog", soundKn: "ವಟ ವಟ", soundEn: "Ribbit!", emoji: "🐸" },
-    { kn: "ಗಿಳಿ", phonetic: "Gili", en: "Parrot", soundKn: "ಕೀಚು", soundEn: "Squawk!", emoji: "🦜" }
+    { kn: "ನಾಯಿ", audio: "ani_naayi", phonetic: "Naayi", en: "Dog", soundKn: "ಬೌ ಬೌ", soundEn: "Bow-Bow!", emoji: "🐕" },
+    { kn: "ಬೆಕ್ಕು", audio: "ani_bekku", phonetic: "Bekku", en: "Cat", soundKn: "ಮಿಯಾಂವ್", soundEn: "Meow-Meow!", emoji: "🐈" },
+    { kn: "ಹಸು", audio: "ani_hasu", phonetic: "Hasu", en: "Cow", soundKn: "ಅಂಬಾ", soundEn: "Moo!", emoji: "🐄" },
+    { kn: "ಆನೆ", audio: "ani_aane", phonetic: "Aane", en: "Elephant", soundKn: "ಘೀಳಿಡು", soundEn: "Trumpet!", emoji: "🐘" },
+    { kn: "ಕೋತಿ", audio: "ani_kothi", phonetic: "Kothi", en: "Monkey", soundKn: "ಕಿಚ ಕಿಚ", soundEn: "Chatter!", emoji: "🐒" },
+    { kn: "ಸಿಂಹ", audio: "ani_simha", phonetic: "Simha", en: "Lion", soundKn: "ಗರ್ಜನೆ", soundEn: "Roar!", emoji: "🦁" },
+    { kn: "ಕಪ್ಪೆ", audio: "ani_kappe", phonetic: "Kappe", en: "Frog", soundKn: "ವಟ ವಟ", soundEn: "Ribbit!", emoji: "🐸" },
+    { kn: "ಗಿಳಿ", audio: "ani_gili", phonetic: "Gili", en: "Parrot", soundKn: "ಕೀಚು", soundEn: "Squawk!", emoji: "🦜" }
   ];
 
   let deck = [];
   let idx = 0;
   let score = 0;
   let solved = false;
+  let currentAudio = null;
+  let bestKannadaVoice = null;
 
-  function shuffle(arr) {
-    return [...arr].sort(() => Math.random() - 0.5);
+  function loadBestVoice() {
+    if (!('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    const knVoices = voices.filter(v => v.lang.toLowerCase().includes('kn'));
+    bestKannadaVoice =
+      knVoices.find(v => /natural|online|google/i.test(v.name)) ||
+      knVoices[0] ||
+      null;
   }
 
-  function speakText(text) {
+  if ('speechSynthesis' in window) {
+    loadBestVoice();
+    window.speechSynthesis.onvoiceschanged = loadBestVoice;
+  }
+
+  function speakFallback(text) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'kn-IN';
-    u.rate = 0.85;
+    if (bestKannadaVoice) u.voice = bestKannadaVoice;
+    u.rate = 0.95;
+    u.pitch = 1.05;
     window.speechSynthesis.speak(u);
+  }
+
+  function playKannada(audioKey, fallbackText) {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+    const audio = new Audio(`../audio/${audioKey}.mp3`);
+    currentAudio = audio;
+    audio.play().catch(() => speakFallback(fallbackText));
+  }
+
+  function shuffle(arr) {
+    return [...arr].sort(() => Math.random() - 0.5);
   }
 
   function playTone(freq, dur = 0.16) {
@@ -251,7 +280,7 @@
 
   function playClue() {
     const a = deck[idx];
-    speakText(`${a.soundKn}! ${a.kn}`);
+    playKannada(a.audio, `${a.soundKn}! ${a.kn}`);
   }
 
   function loadAnimal() {
@@ -295,13 +324,14 @@
       document.getElementById('nextBtn').style.display = 'inline-block';
       playTone(587.33, 0.14);
       setTimeout(() => playTone(880, 0.24), 120);
-      speakText(a.kn);
+      playKannada(a.audio, a.kn);
     } else {
       btn.classList.add('wrong');
       btn.disabled = true;
       document.getElementById('feedbackText').style.color = '#b91c1c';
       document.getElementById('feedbackText').textContent = 'ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ (Try again!)';
       playTone(200, 0.22);
+      playKannada('try_again', 'ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ');
     }
   }
 
