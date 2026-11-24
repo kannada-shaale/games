@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ಆಕ್ಷನ್ ಆಟ · Kannada Action Commands (Listen & Speak)</title>
+
+  <!-- Directory Metadata -->
+  <meta name="game:category" content="Listening & Speaking">
+  <meta name="game:level" content="Beginner">
+  <meta name="game:age" content="4-7">
+  <meta name="game:tags" content="Actions, Listening, Speaking, Voice/Mic, No-Script">
+  <meta name="game:description" content="Listen to spoken Kannada action commands like Baa, Nillu, and Odu, match the right action, and practice saying them aloud.">
+  <meta name="game:author" content="Kannada Games Starter">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@600;700;800&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Kannada', sans-serif;
+      background: linear-gradient(160deg, #ecfdf5 0%, #d1fae5 50%, #ccfbf1 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      color: #064e3b;
+    }
+    .topbar {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.9rem;
+    }
+    .home-link {
+      text-decoration: none;
+      background: white;
+      color: #047857;
+      font-weight: 700;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      font-size: 0.9rem;
+    }
+    .score-pill {
+      background: #065f46;
+      color: white;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      font-size: 0.92rem;
+    }
+    .card {
+      background: white;
+      width: 100%;
+      max-width: 680px;
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: 0 14px 35px rgba(6, 95, 70, 0.12);
+      text-align: center;
+    }
+    .mode-switch {
+      display: inline-flex;
+      background: #d1fae5;
+      padding: 0.25rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.86rem;
+      cursor: pointer;
+      color: #065f46;
+      font-family: inherit;
+    }
+    .mode-btn.active {
+      background: #059669;
+      color: white;
+    }
+    .progress {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 0.75rem;
+    }
+    .audio-hero {
+      background: #f0fdf4;
+      border: 3px dashed #34d399;
+      border-radius: 22px;
+      padding: 1.35rem 1rem;
+      margin: 0 auto 1.2rem;
+      max-width: 380px;
+      cursor: pointer;
+    }
+    .big-speaker {
+      font-size: 3.6rem;
+      display: block;
+      margin-bottom: 0.35rem;
+    }
+    .command-phonetic {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #065f46;
+    }
+    .command-kn {
+      font-family: 'Noto Sans Kannada', sans-serif;
+      font-size: 1.25rem;
+      color: #047857;
+      margin-top: 0.2rem;
+    }
+    .speak-btn, .mic-btn {
+      background: #d1fae5;
+      border: 2px solid #10b981;
+      color: #065f46;
+      font-weight: 700;
+      padding: 0.55rem 1.15rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.92rem;
+      font-family: inherit;
+      margin: 0.25rem;
+    }
+    .mic-btn {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #92400e;
+    }
+    .mic-btn.listening {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #b91c1c;
+      animation: pulse 1s infinite;
+    }
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.85rem;
+      max-width: 480px;
+      margin: 1rem auto;
+    }
+    .action-tile {
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-bottom-width: 5px;
+      border-radius: 18px;
+      padding: 1rem 0.6rem;
+      cursor: pointer;
+      transition: transform 0.12s, background 0.15s;
+      font-family: inherit;
+    }
+    .action-tile:hover:not(:disabled) {
+      background: #ecfdf5;
+      border-color: #10b981;
+      transform: translateY(-2px);
+    }
+    .action-tile .emoji {
+      font-size: 3.2rem;
+      display: block;
+      margin-bottom: 0.35rem;
+    }
+    .action-tile .label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .action-tile.wrong {
+      background: #fee2e2;
+      border-color: #ef4444;
+    }
+    .action-tile.correct {
+      background: #dcfce7;
+      border-color: #22c55e;
+    }
+    .speak-stage {
+      display: none;
+      margin: 1rem auto;
+      max-width: 420px;
+    }
+    .speak-stage.visible { display: block; }
+    .target-action-emoji {
+      font-size: 5rem;
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    .fallback-btn {
+      background: #e2e8f0;
+      border: none;
+      color: #334155;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      margin-top: 0.6rem;
+      font-family: inherit;
+    }
+    .feedback {
+      min-height: 1.7rem;
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin: 0.75rem 0;
+    }
+    .next-btn {
+      display: none;
+      background: #059669;
+      color: white;
+      border: none;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.75rem 1.8rem;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="home-link" href="../index.html">← All Games</a>
+    <div class="score-pill">⭐ Stars: <span id="score">0</span></div>
+  </div>
+
+  <div class="card" id="gameCard">
+    <div class="mode-switch">
+      <button class="mode-btn active" id="btnListen" onclick="setMode('listen')">👂 ಕೇಳಿ & ಆರಿಸಿ (Listen & Pick)</button>
+      <button class="mode-btn" id="btnSpeak" onclick="setMode('speak')">🗣️ ಹೇಳಿ (Say Command)</button>
+    </div>
+
+    <div class="progress" id="progressText">Command 1 of 8</div>
+
+    <!-- LISTEN MODE -->
+    <div id="listenStage">
+      <div class="audio-hero" onclick="speakCommand()" title="Tap to hear command">
+        <span class="big-speaker">🔊</span>
+        <div class="command-phonetic" id="phoneticHint">Tap Listen!</div>
+        <div class="command-kn" id="knHint">ಕೇಳಿ</div>
+      </div>
+      <button class="speak-btn" onclick="speakCommand()">🔊 ಮತ್ತೆ ಕೇಳಿ (Hear Command)</button>
+      <div class="choices" id="choicesGrid"></div>
+    </div>
+
+    <!-- SPEAK MODE -->
+    <div class="speak-stage" id="speakStage">
+      <span class="target-action-emoji" id="speakEmoji">👋</span>
+      <div class="command-phonetic" id="speakPromptEn">Come here!</div>
+      <div class="command-kn" id="speakPromptKn">ಬಾ (Baa)</div>
+      <div style="margin-top:0.9rem;">
+        <button class="speak-btn" onclick="speakCommand()">🔊 Hear Model</button>
+        <button class="mic-btn" id="micBtn" onclick="startListening()">🎤 ಮಾತನಾಡಿ (Say It)</button>
+      </div>
+      <div>
+        <button class="fallback-btn" onclick="manualPass()">✅ Child said it aloud! (Parent Check)</button>
+      </div>
+    </div>
+
+    <div class="feedback" id="feedbackText"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextItem()">ಮುಂದೆ (Next) ▶</button>
+  </div>
+
+<script>
+  const ACTIONS = [
+    { kn: "ಬಾ", phonetic: "Baa", en: "Come here", emoji: "👋", alts: ["ಬಾ", "baa", "ba", "ಬಾರೋ"] },
+    { kn: "ಕುಳಿತುಕೋ", phonetic: "Kulithuko", en: "Sit down", emoji: "🪑", alts: ["ಕುಳಿತುಕೋ", "kulithuko", "kootko", "ಕೂತ್ಕೋ"] },
+    { kn: "ನಿಲ್ಲು", phonetic: "Nillu", en: "Stand up / Stop", emoji: "🛑", alts: ["ನಿಲ್ಲು", "nillu", "nilu"] },
+    { kn: "ಓಡು", phonetic: "Odu", en: "Run", emoji: "🏃", alts: ["ಓಡು", "odu", "oodu"] },
+    { kn: "ನೋಡು", phonetic: "Noodu", en: "Look", emoji: "👀", alts: ["ನೋಡು", "nodu", "noodu"] },
+    { kn: "ಚಪ್ಪಾಳೆ ತಟ್ಟು", phonetic: "Chappaale Thattu", en: "Clap hands", emoji: "👏", alts: ["ಚಪ್ಪಾಳೆ", "chappale", "thattu"] },
+    { kn: "ಕೈ ಎತ್ತು", phonetic: "Kai Etthu", en: "Raise hand", emoji: "🙋", alts: ["ಕೈ ಎತ್ತು", "kai", "etthu"] },
+    { kn: "ನಗು", phonetic: "Nagu", en: "Smile / Laugh", emoji: "😄", alts: ["ನಗು", "nagu"] }
+  ];
+
+  let mode = "listen";
+  let deck = [];
+  let idx = 0;
+  let score = 0;
+  let solved = false;
+
+  function shuffle(arr) {
+    return [...arr].sort(() => Math.random() - 0.5);
+  }
+
+  function speakText(text) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'kn-IN';
+    u.rate = 0.85;
+    window.speechSynthesis.speak(u);
+  }
+
+  function playTone(freq, dur = 0.16) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+      osc.stop(ctx.currentTime + dur);
+    } catch (_) {}
+  }
+
+  function setMode(newMode) {
+    mode = newMode;
+    document.getElementById('btnListen').classList.toggle('active', mode === 'listen');
+    document.getElementById('btnSpeak').classList.toggle('active', mode === 'speak');
+    document.getElementById('listenStage').style.display = mode === 'listen' ? 'block' : 'none';
+    document.getElementById('speakStage').classList.toggle('visible', mode === 'speak');
+    startGame();
+  }
+
+  function startGame() {
+    deck = shuffle(ACTIONS);
+    idx = 0;
+    loadItem();
+  }
+
+  function speakCommand() {
+    speakText(deck[idx].kn);
+  }
+
+  function loadItem() {
+    solved = false;
+    const item = deck[idx];
+    document.getElementById('progressText').textContent = `Command ${idx + 1} of ${deck.length}`;
+    document.getElementById('feedbackText').textContent = '';
+    document.getElementById('nextBtn').style.display = 'none';
+
+    if (mode === 'listen') {
+      document.getElementById('phoneticHint').textContent = `"${item.phonetic}"`;
+      document.getElementById('knHint').textContent = item.kn;
+
+      const distractors = shuffle(ACTIONS.filter(a => a.kn !== item.kn)).slice(0, 3);
+      const options = shuffle([item, ...distractors]);
+
+      const grid = document.getElementById('choicesGrid');
+      grid.innerHTML = '';
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'action-tile';
+        btn.innerHTML = `<span class="emoji">${opt.emoji}</span><span class="label">${opt.en}</span>`;
+        btn.onclick = () => checkListen(btn, opt);
+        grid.appendChild(btn);
+      });
+      speakCommand();
+    } else {
+      document.getElementById('speakEmoji').textContent = item.emoji;
+      document.getElementById('speakPromptEn').textContent = item.en;
+      document.getElementById('speakPromptKn').textContent = `${item.kn} (${item.phonetic})`;
+    }
+  }
+
+  function checkListen(btn, opt) {
+    if (solved) return;
+    const item = deck[idx];
+    if (opt.kn === item.kn) {
+      solved = true;
+      btn.classList.add('correct');
+      score++;
+      document.getElementById('score').textContent = score;
+      document.getElementById('feedbackText').style.color = '#15803d';
+      document.getElementById('feedbackText').textContent = `ಶಹಬ್ಬಾಸ್! "${item.kn}" = ${item.en}! 🎉`;
+      document.getElementById('nextBtn').style.display = 'inline-block';
+      playTone(587.33, 0.14);
+      setTimeout(() => playTone(880, 0.24), 120);
+    } else {
+      btn.classList.add('wrong');
+      btn.disabled = true;
+      document.getElementById('feedbackText').style.color = '#b91c1c';
+      document.getElementById('feedbackText').textContent = 'ಮತ್ತೊಮ್ಮೆ ಕೇಳಿ ಪ್ರಯತ್ನಿಸಿ (Listen & try again!)';
+      playTone(200, 0.22);
+    }
+  }
+
+  function startListening() {
+    if (solved) return;
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      document.getElementById('feedbackText').style.color = '#92400e';
+      document.getElementById('feedbackText').textContent = 'Mic not supported in this browser — use the Parent Check button below!';
+      return;
+    }
+    const rec = new SpeechRec();
+    rec.lang = 'kn-IN';
+    rec.interimResults = false;
+    const micBtn = document.getElementById('micBtn');
+    micBtn.classList.add('listening');
+    micBtn.textContent = '🎙️ ಕೇಳುತ್ತಿದ್ದೇನೆ... (Listening)';
+
+    rec.onresult = (e) => {
+      micBtn.classList.remove('listening');
+      micBtn.textContent = '🎤 ಮಾತನಾಡಿ (Say It)';
+      const transcript = e.results[0][0].transcript.trim().toLowerCase();
+      const item = deck[idx];
+      const matched = item.alts.some(a => transcript.includes(a.toLowerCase()));
+      if (matched) {
+        completeSpeak(`ಅದ್ಭುತ! You said "${transcript}"! 🌟`);
+      } else {
+        document.getElementById('feedbackText').style.color = '#b91c1c';
+        document.getElementById('feedbackText').textContent = `Heard "${transcript}" — try saying "${item.phonetic}" again!`;
+        playTone(200, 0.2);
+      }
+    };
+    rec.onerror = () => {
+      micBtn.classList.remove('listening');
+      micBtn.textContent = '🎤 ಮಾತನಾಡಿ (Say It)';
+      document.getElementById('feedbackText').style.color = '#92400e';
+      document.getElementById('feedbackText').textContent = 'Could not hear clearly — try again or tap Parent Check!';
+    };
+    rec.start();
+  }
+
+  function manualPass() {
+    if (solved) return;
+    const item = deck[idx];
+    completeSpeak(`ಶಹಬ್ಬಾಸ್! "${item.kn}" (${item.phonetic})! 🌟`);
+  }
+
+  function completeSpeak(msg) {
+    solved = true;
+    score++;
+    document.getElementById('score').textContent = score;
+    document.getElementById('feedbackText').style.color = '#15803d';
+    document.getElementById('feedbackText').textContent = msg;
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    playTone(587.33, 0.14);
+    setTimeout(() => playTone(880, 0.24), 120);
+  }
+
+  function nextItem() {
+    idx++;
+    if (idx < deck.length) {
+      loadItem();
+    } else {
+      document.getElementById('gameCard').innerHTML = `
+        <div style="font-size:4rem;margin-bottom:0.5rem;">🏆</div>
+        <h2 style="font-size:1.8rem;color:#065f46;margin-bottom:0.5rem;">ಅಭಿನಂದನೆಗಳು! Great Job!</h2>
+        <p style="font-size:1.1rem;margin-bottom:1.5rem;">You practiced all ${deck.length} Kannada Action Commands and earned <strong>${score} ⭐</strong>!</p>
+        <button class="next-btn" style="display:inline-block;" onclick="location.reload()">ಮತ್ತೆ ಆಡಿ (Play Again)</button>
+      `;
+    }
+  }
+
+  startGame();
+</script>
+</body>
+</html>
